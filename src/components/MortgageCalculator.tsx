@@ -87,17 +87,23 @@ export function MortgageCalculator() {
   );
 
   const handleLoanFormChange = (field: keyof LoanInput, value: string | number) => {
-    setLoanForm(prev => ({
-      ...prev,
-      [field]: field === 'paymentMethod' ? value : (typeof value === 'string' ? parseFloat(value) || 0 : value)
-    }));
+    if (field === 'paymentMethod') {
+      setLoanForm(prev => ({ ...prev, [field]: value as LoanInput['paymentMethod'] }));
+    } else {
+      // 对于数字字段，立即解析为数字，避免前导零问题
+      const numericValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+      setLoanForm(prev => ({ ...prev, [field]: numericValue as number }));
+    }
   };
 
   const handleCombinedFormChange = (field: keyof CombinedLoanInput, value: string | number) => {
-    setCombinedForm(prev => ({
-      ...prev,
-      [field]: field === 'paymentMethod' ? value : (typeof value === 'string' ? parseFloat(value) || 0 : value)
-    }));
+    if (field === 'paymentMethod') {
+      setCombinedForm(prev => ({ ...prev, [field]: value as CombinedLoanInput['paymentMethod'] }));
+    } else {
+      // 对于数字字段，立即解析为数字，避免前导零问题
+      const numericValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+      setCombinedForm(prev => ({ ...prev, [field]: numericValue as number }));
+    }
   };
 
   const renderSummaryCard = (title: string, result: { totalInterest: number; totalPayment: number; firstMonthPayment: number; lastMonthPayment: number }, icon: React.ReactNode) => (
@@ -148,8 +154,18 @@ export function MortgageCalculator() {
                 <Input
                   id="loanAmount"
                   type="number"
-                  value={loanForm.loanAmount}
-                  onChange={(e) => handleLoanFormChange('loanAmount', e.target.value)}
+                  value={loanForm.loanAmount === 0 ? '' : loanForm.loanAmount}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    // 如果输入为空或只有前导零，保持原样让用户继续输入
+                    if (inputValue === '' || inputValue === '0') {
+                      handleLoanFormChange('loanAmount', inputValue);
+                    } else {
+                      // 立即解析并格式化数字，去除前导零
+                      const numValue = parseFloat(inputValue) || 0;
+                      handleLoanFormChange('loanAmount', numValue);
+                    }
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -158,8 +174,18 @@ export function MortgageCalculator() {
                   id="interestRate"
                   type="number"
                   step="0.01"
-                  value={loanForm.interestRate}
-                  onChange={(e) => handleLoanFormChange('interestRate', e.target.value)}
+                  value={loanForm.interestRate === 0 ? '' : loanForm.interestRate}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    // 如果输入为空或只有前导零，保持原样让用户继续输入
+                    if (inputValue === '' || inputValue === '0' || inputValue === '0.') {
+                      handleLoanFormChange('interestRate', inputValue);
+                    } else {
+                      // 立即解析并格式化数字，去除前导零
+                      const numValue = parseFloat(inputValue) || 0;
+                      handleLoanFormChange('interestRate', numValue);
+                    }
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -221,8 +247,16 @@ export function MortgageCalculator() {
               <Input
                 id="commercialAmount"
                 type="number"
-                value={combinedForm.commercialAmount}
-                onChange={(e) => handleCombinedFormChange('commercialAmount', e.target.value)}
+                value={combinedForm.commercialAmount === 0 ? '' : combinedForm.commercialAmount}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (inputValue === '' || inputValue === '0') {
+                    handleCombinedFormChange('commercialAmount', inputValue);
+                  } else {
+                    const numValue = parseFloat(inputValue) || 0;
+                    handleCombinedFormChange('commercialAmount', numValue);
+                  }
+                }}
               />
             </div>
             <div className="space-y-2">
@@ -231,8 +265,16 @@ export function MortgageCalculator() {
                 id="commercialRate"
                 type="number"
                 step="0.01"
-                value={combinedForm.commercialRate}
-                onChange={(e) => handleCombinedFormChange('commercialRate', e.target.value)}
+                value={combinedForm.commercialRate === 0 ? '' : combinedForm.commercialRate}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (inputValue === '' || inputValue === '0' || inputValue === '0.') {
+                    handleCombinedFormChange('commercialRate', inputValue);
+                  } else {
+                    const numValue = parseFloat(inputValue) || 0;
+                    handleCombinedFormChange('commercialRate', numValue);
+                  }
+                }}
               />
             </div>
             <div className="space-y-2">
@@ -240,8 +282,16 @@ export function MortgageCalculator() {
               <Input
                 id="cpfAmount"
                 type="number"
-                value={combinedForm.cpfAmount}
-                onChange={(e) => handleCombinedFormChange('cpfAmount', e.target.value)}
+                value={combinedForm.cpfAmount === 0 ? '' : combinedForm.cpfAmount}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (inputValue === '' || inputValue === '0') {
+                    handleCombinedFormChange('cpfAmount', inputValue);
+                  } else {
+                    const numValue = parseFloat(inputValue) || 0;
+                    handleCombinedFormChange('cpfAmount', numValue);
+                  }
+                }}
               />
             </div>
             <div className="space-y-2">
@@ -250,10 +300,19 @@ export function MortgageCalculator() {
                 id="cpfRate"
                 type="number"
                 step="0.01"
-                value={combinedForm.cpfRate}
-                onChange={(e) => handleCombinedFormChange('cpfRate', e.target.value)}
+                value={combinedForm.cpfRate === 0 ? '' : combinedForm.cpfRate}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (inputValue === '' || inputValue === '0' || inputValue === '0.') {
+                    handleCombinedFormChange('cpfRate', inputValue);
+                  } else {
+                    const numValue = parseFloat(inputValue) || 0;
+                    handleCombinedFormChange('cpfRate', numValue);
+                  }
+                }}
               />
-            </div>              <div className="space-y-2">
+            </div>
+            <div className="space-y-2">
                 <Label htmlFor="combinedLoanTerm">贷款期限（年）</Label>
                 <Select
                   value={combinedForm.loanTerm.toString()}
@@ -272,7 +331,8 @@ export function MortgageCalculator() {
                     <SelectItem value="30">30年</SelectItem>
                   </SelectContent>
                 </Select>
-              </div><div className="space-y-2">
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="combinedPaymentMethod">还款方式</Label>
                 <Select
                   value={combinedForm.paymentMethod}
