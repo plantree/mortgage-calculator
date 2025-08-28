@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { Calculator, TrendingUp, Home, PiggyBank, Combine } from 'lucide-react';
 import { 
   calculateMortgage, 
   calculateCombinedLoan, 
+  calculateYearlyInterestSummary,
   formatCurrency, 
   formatNumber,
   LoanInput,
@@ -18,6 +19,7 @@ import {
 } from '@/lib/mortgage-calculator';
 import { PaymentChart } from './PaymentChart';
 import { PaymentTable } from './PaymentTable';
+import { InterestSummary } from './InterestSummary';
 
 export function MortgageCalculator() {
   // 单一贷款表单状态
@@ -40,30 +42,61 @@ export function MortgageCalculator() {
 
   const [activeTab, setActiveTab] = useState('commercial');
 
+  // 当切换标签页时，更新利率为默认值
+  useEffect(() => {
+    if (activeTab === 'commercial') {
+      setLoanForm(prev => ({ ...prev, interestRate: 3.0 }));
+    } else if (activeTab === 'cpf') {
+      setLoanForm(prev => ({ ...prev, interestRate: 2.6 }));
+    }
+  }, [activeTab]);
+
   // 计算结果
   const commercialResult = useMemo(() => 
-    calculateMortgage({ ...loanForm, interestRate: 3.0 }), [loanForm]
+    calculateMortgage({ 
+      ...loanForm, 
+      interestRate: activeTab === 'commercial' ? loanForm.interestRate : 3.0 
+    }), [loanForm, activeTab]
   );
 
   const cpfResult = useMemo(() => 
-    calculateMortgage({ ...loanForm, interestRate: 2.6 }), [loanForm]
+    calculateMortgage({ 
+      ...loanForm, 
+      interestRate: activeTab === 'cpf' ? loanForm.interestRate : 2.6 
+    }), [loanForm, activeTab]
   );
 
   const combinedResult = useMemo(() => 
     calculateCombinedLoan(combinedForm), [combinedForm]
   );
 
+  // 计算年度利息统计
+  const commercialYearlyStats = useMemo(() => 
+    calculateYearlyInterestSummary(commercialResult.monthlyPayments, commercialResult.totalInterest), 
+    [commercialResult]
+  );
+
+  const cpfYearlyStats = useMemo(() => 
+    calculateYearlyInterestSummary(cpfResult.monthlyPayments, cpfResult.totalInterest), 
+    [cpfResult]
+  );
+
+  const combinedYearlyStats = useMemo(() => 
+    calculateYearlyInterestSummary(combinedResult.combined.monthlyPayments, combinedResult.combined.totalInterest), 
+    [combinedResult]
+  );
+
   const handleLoanFormChange = (field: keyof LoanInput, value: string | number) => {
     setLoanForm(prev => ({
       ...prev,
-      [field]: typeof value === 'string' ? parseFloat(value) || 0 : value
+      [field]: field === 'paymentMethod' ? value : (typeof value === 'string' ? parseFloat(value) || 0 : value)
     }));
   };
 
   const handleCombinedFormChange = (field: keyof CombinedLoanInput, value: string | number) => {
     setCombinedForm(prev => ({
       ...prev,
-      [field]: typeof value === 'string' ? parseFloat(value) || 0 : value
+      [field]: field === 'paymentMethod' ? value : (typeof value === 'string' ? parseFloat(value) || 0 : value)
     }));
   };
 
@@ -125,7 +158,7 @@ export function MortgageCalculator() {
                   id="interestRate"
                   type="number"
                   step="0.01"
-                  value={activeTab === 'commercial' ? 3.0 : 2.6}
+                  value={loanForm.interestRate}
                   onChange={(e) => handleLoanFormChange('interestRate', e.target.value)}
                 />
               </div>
@@ -136,7 +169,9 @@ export function MortgageCalculator() {
                   onValueChange={(value) => handleLoanFormChange('loanTerm', parseInt(value))}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue>
+                      {loanForm.loanTerm ? `${loanForm.loanTerm}年` : '请选择贷款期限'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="10">10年</SelectItem>
@@ -154,7 +189,10 @@ export function MortgageCalculator() {
                   onValueChange={(value) => handleLoanFormChange('paymentMethod', value)}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue>
+                      {loanForm.paymentMethod === 'equalInstallment' ? '等额本息' : 
+                       loanForm.paymentMethod === 'equalPrincipal' ? '等额本金' : '请选择还款方式'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="equalInstallment">等额本息</SelectItem>
@@ -215,40 +253,43 @@ export function MortgageCalculator() {
                 value={combinedForm.cpfRate}
                 onChange={(e) => handleCombinedFormChange('cpfRate', e.target.value)}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="combinedLoanTerm">贷款期限（年）</Label>
-              <Select
-                value={combinedForm.loanTerm.toString()}
-                onValueChange={(value) => handleCombinedFormChange('loanTerm', parseInt(value))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10年</SelectItem>
-                  <SelectItem value="15">15年</SelectItem>
-                  <SelectItem value="20">20年</SelectItem>
-                  <SelectItem value="25">25年</SelectItem>
-                  <SelectItem value="30">30年</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="combinedPaymentMethod">还款方式</Label>
-              <Select
-                value={combinedForm.paymentMethod}
-                onValueChange={(value) => handleCombinedFormChange('paymentMethod', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="equalInstallment">等额本息</SelectItem>
-                  <SelectItem value="equalPrincipal">等额本金</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            </div>              <div className="space-y-2">
+                <Label htmlFor="combinedLoanTerm">贷款期限（年）</Label>
+                <Select
+                  value={combinedForm.loanTerm.toString()}
+                  onValueChange={(value) => handleCombinedFormChange('loanTerm', parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue>
+                      {combinedForm.loanTerm ? `${combinedForm.loanTerm}年` : '请选择贷款期限'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10年</SelectItem>
+                    <SelectItem value="15">15年</SelectItem>
+                    <SelectItem value="20">20年</SelectItem>
+                    <SelectItem value="25">25年</SelectItem>
+                    <SelectItem value="30">30年</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div><div className="space-y-2">
+                <Label htmlFor="combinedPaymentMethod">还款方式</Label>
+                <Select
+                  value={combinedForm.paymentMethod}
+                  onValueChange={(value) => handleCombinedFormChange('paymentMethod', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue>
+                      {combinedForm.paymentMethod === 'equalInstallment' ? '等额本息' : 
+                       combinedForm.paymentMethod === 'equalPrincipal' ? '等额本金' : '请选择还款方式'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="equalInstallment">等额本息</SelectItem>
+                    <SelectItem value="equalPrincipal">等额本金</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
           </div>
         </CardContent>
       </Card>
@@ -296,15 +337,18 @@ export function MortgageCalculator() {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>还款明细表</CardTitle>
-              <CardDescription>详细的月度还款计划</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PaymentTable data={commercialResult.monthlyPayments} />
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <InterestSummary data={commercialYearlyStats} title="商业贷款前5年利息统计" />
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>还款明细表</CardTitle>
+                <CardDescription>详细的月度还款计划</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PaymentTable data={commercialResult.monthlyPayments} />
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="cpf" className="space-y-6">
@@ -325,15 +369,18 @@ export function MortgageCalculator() {
             </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>还款明细表</CardTitle>
-              <CardDescription>详细的月度还款计划</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PaymentTable data={cpfResult.monthlyPayments} />
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <InterestSummary data={cpfYearlyStats} title="公积金贷款前5年利息统计" />
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>还款明细表</CardTitle>
+                <CardDescription>详细的月度还款计划</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PaymentTable data={cpfResult.monthlyPayments} />
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="combined" className="space-y-6">
@@ -377,17 +424,27 @@ export function MortgageCalculator() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>组合贷款还款明细表</CardTitle>
-              <CardDescription>详细的月度还款计划（商贷+公积金）</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PaymentTable data={combinedResult.combined.monthlyPayments} />
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <InterestSummary data={combinedYearlyStats} title="组合贷款前5年利息统计" />
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>组合贷款还款明细表</CardTitle>
+                <CardDescription>详细的月度还款计划（商贷+公积金）</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PaymentTable data={combinedResult.combined.monthlyPayments} />
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Footer */}
+      <footer className="mt-12 pt-8 border-t border-gray-200">
+        <div className="text-center text-sm text-muted-foreground">
+          Copyright © from 2025 <a href="https://plantree.me" className="hover:underline">Plantree</a>. All Rights Reserved.
+        </div>
+      </footer>
     </div>
   );
 }

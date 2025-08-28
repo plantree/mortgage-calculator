@@ -195,3 +195,47 @@ export function formatNumber(amount: number): string {
     maximumFractionDigits: 2
   }).format(amount);
 }
+
+// 计算累积利息统计
+export interface YearlyInterestSummary {
+  year: number;
+  cumulativeInterest: number; // 累积利息
+  interestPercentage: number; // 占总利息的比例
+  yearlyInterest: number; // 当年利息
+}
+
+export function calculateYearlyInterestSummary(monthlyPayments: MonthlyPayment[], totalInterest: number): YearlyInterestSummary[] {
+  const yearlyData: YearlyInterestSummary[] = [];
+  let cumulativeInterest = 0;
+  
+  for (let year = 1; year <= 5; year++) {
+    const startMonth = (year - 1) * 12 + 1;
+    const endMonth = Math.min(year * 12, monthlyPayments.length);
+    
+    let yearlyInterest = 0;
+    
+    // 计算该年度的利息
+    for (let month = startMonth; month <= endMonth; month++) {
+      if (monthlyPayments[month - 1]) {
+        yearlyInterest += monthlyPayments[month - 1].interest;
+      }
+    }
+    
+    cumulativeInterest += yearlyInterest;
+    const interestPercentage = totalInterest > 0 ? (cumulativeInterest / totalInterest) * 100 : 0;
+    
+    yearlyData.push({
+      year,
+      cumulativeInterest,
+      interestPercentage,
+      yearlyInterest
+    });
+    
+    // 如果已经到达贷款期限，停止计算
+    if (endMonth >= monthlyPayments.length) {
+      break;
+    }
+  }
+  
+  return yearlyData;
+}
