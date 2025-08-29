@@ -20,6 +20,7 @@ import {
 import { PaymentChart } from './PaymentChart';
 import { PaymentTable } from './PaymentTable';
 import { InterestSummary } from './InterestSummary';
+import { EarlyRepaymentCalculator } from './EarlyRepaymentCalculator';
 
 export function MortgageCalculator() {
   // 单一贷款表单状态
@@ -409,6 +410,11 @@ export function MortgageCalculator() {
               </CardContent>
             </Card>
           </div>
+
+          <EarlyRepaymentCalculator 
+            originalLoan={loanForm} 
+            originalResult={commercialResult} 
+          />
         </TabsContent>
 
         <TabsContent value="cpf" className="space-y-6">
@@ -441,6 +447,11 @@ export function MortgageCalculator() {
               </CardContent>
             </Card>
           </div>
+
+          <EarlyRepaymentCalculator 
+            originalLoan={loanForm} 
+            originalResult={cpfResult} 
+          />
         </TabsContent>
 
         <TabsContent value="combined" className="space-y-6">
@@ -496,6 +507,16 @@ export function MortgageCalculator() {
               </CardContent>
             </Card>
           </div>
+
+          <EarlyRepaymentCalculator 
+            originalLoan={{
+              loanAmount: combinedForm.commercialAmount + combinedForm.cpfAmount,
+              interestRate: (combinedForm.commercialRate * combinedForm.commercialAmount + combinedForm.cpfRate * combinedForm.cpfAmount) / (combinedForm.commercialAmount + combinedForm.cpfAmount),
+              loanTerm: combinedForm.loanTerm,
+              paymentMethod: combinedForm.paymentMethod
+            }} 
+            originalResult={combinedResult.combined} 
+          />
         </TabsContent>
       </Tabs>
       
