@@ -33,7 +33,7 @@ export function EarlyRepaymentCalculator({ originalLoan }: EarlyRepaymentCalcula
 
   const earlyRepaymentResult: EarlyRepaymentResult | null = useMemo(() => {
     try {
-      if (showCalculation && repaymentForm.repaymentAmount > 0 && repaymentForm.repaymentMonth > 0) {
+      if (repaymentForm.repaymentAmount > 0 && repaymentForm.repaymentMonth > 0) {
         const earlyRepaymentInput: EarlyRepaymentInput = {
           originalLoan,
           ...repaymentForm
@@ -45,7 +45,7 @@ export function EarlyRepaymentCalculator({ originalLoan }: EarlyRepaymentCalcula
       console.error('提前还贷计算错误:', error);
       return null;
     }
-  }, [originalLoan, repaymentForm, showCalculation]);
+  }, [originalLoan, repaymentForm]);
 
   const handleFormChange = (field: string, value: string | number) => {
     setRepaymentForm(prev => ({
@@ -55,6 +55,11 @@ export function EarlyRepaymentCalculator({ originalLoan }: EarlyRepaymentCalcula
   };
 
   const handleCalculate = () => {
+    setShowCalculation(true);
+  };
+
+  const handleRecalculate = () => {
+    // 计算会自动进行，这里只需要确保显示状态正确
     setShowCalculation(true);
   };
 
@@ -143,9 +148,9 @@ export function EarlyRepaymentCalculator({ originalLoan }: EarlyRepaymentCalcula
 
         {/* 操作按钮 */}
         <div className="flex gap-2">
-          <Button onClick={handleCalculate}>
+          <Button onClick={showCalculation ? handleRecalculate : handleCalculate}>
             <Calculator className="h-4 w-4 mr-2" />
-            开始测算
+            {showCalculation ? '重新计算' : '开始测算'}
           </Button>
           {showCalculation && (
             <Button variant="outline" onClick={handleReset}>

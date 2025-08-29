@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- 背景 -->
+  <rect x="0" y="0" width="32" height="32" fill="#2563eb"/>
+  
+  <!-- 房子图标 -->
+  <g fill="#ffffff">
+    <!-- 屋顶 -->
+    <path d="M4 12 L16 0 L28 12 L26 12 L26 10 L16 0 L6 10 L6 12 Z"/>
+    <!-- 房身 -->
+    <rect x="6" y="10" width="20" height="12" fill="#ffffff"/>
+    <!-- 门 -->
+    <rect x="12" y="16" width="8" height="6" fill="#2563eb"/>
+    <!-- 窗户 -->
+    <rect x="8" y="13" width="3" height="3" fill="#2563eb"/>
+    <rect x="21" y="13" width="3" height="3" fill="#2563eb"/>
+  </g>
+</svg>

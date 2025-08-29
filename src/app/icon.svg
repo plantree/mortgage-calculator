@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- 背景圆形 -->
+  <circle cx="16" cy="16" r="15" fill="#2563eb" stroke="#1d4ed8" stroke-width="2"/>
+  
+  <!-- 房子图标 -->
+  <g fill="#ffffff">
+    <!-- 屋顶 -->
+    <path d="M8 12 L16 4 L24 12 L22 12 L22 10 L16 4 L10 10 L10 12 Z"/>
+    <!-- 房身 -->
+    <rect x="10" y="10" width="12" height="9" fill="#ffffff"/>
+    <!-- 门 -->
+    <rect x="14" y="14" width="4" height="5" fill="#2563eb"/>
+    <!-- 窗户 -->
+    <rect x="11.5" y="12" width="2.5" height="2" fill="#2563eb"/>
+    <rect x="18" y="12" width="2.5" height="2" fill="#2563eb"/>
+  </g>
+  
+  <!-- 计算器符号 -->
+  <g fill="#ffffff" font-family="Arial, sans-serif" font-size="8" font-weight="bold">
+    <text x="16" y="27" text-anchor="middle">¥</text>
+  </g>
+</svg>

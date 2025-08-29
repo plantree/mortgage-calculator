@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- 背景圆角矩形 -->
+  <rect x="0" y="0" width="512" height="512" rx="64" ry="64" fill="#2563eb"/>
+  
+  <!-- 房子图标 -->
+  <g fill="#ffffff">
+    <!-- 屋顶 -->
+    <path d="M128 200 L256 72 L384 200 L358 200 L358 174 L256 72 L154 174 L154 200 Z"/>
+    <!-- 房身 -->
+    <rect x="154" y="174" width="204" height="130" fill="#ffffff"/>
+    <!-- 门 -->
+    <rect x="230" y="248" width="52" height="56" fill="#2563eb"/>
+    <!-- 窗户 -->
+    <rect x="176" y="200" width="32" height="26" fill="#2563eb"/>
+    <rect x="304" y="200" width="32" height="26" fill="#2563eb"/>
+    <!-- 门把手 -->
+    <circle cx="270" cy="276" r="4" fill="#ffffff"/>
+    <!-- 屋顶装饰 -->
+    <rect x="250" y="72" width="12" height="40" fill="#ffffff"/>
+  </g>
+  
+  <!-- 计算器符号 -->
+  <g fill="#ffffff" font-family="Arial, sans-serif" font-size="48" font-weight="bold">
+    <text x="256" y="350" text-anchor="middle">¥</text>
+  </g>
+  
+  <!-- 装饰元素 -->
+  <g fill="#ffffff" opacity="0.8">
+    <circle cx="100" cy="380" r="8"/>
+    <circle cx="412" cy="380" r="8"/>
+    <circle cx="100" cy="132" r="6"/>
+    <circle cx="412" cy="132" r="6"/>
+  </g>
+</svg>

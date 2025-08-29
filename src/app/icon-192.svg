@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- 背景圆角矩形 -->
+  <rect x="0" y="0" width="192" height="192" rx="24" ry="24" fill="#2563eb"/>
+  
+  <!-- 房子图标 -->
+  <g fill="#ffffff">
+    <!-- 屋顶 -->
+    <path d="M48 76 L96 28 L144 76 L134 76 L134 66 L96 28 L58 66 L58 76 Z"/>
+    <!-- 房身 -->
+    <rect x="58" y="66" width="76" height="50" fill="#ffffff"/>
+    <!-- 门 -->
+    <rect x="86" y="94" width="20" height="22" fill="#2563eb"/>
+    <!-- 窗户 -->
+    <rect x="66" y="76" width="12" height="10" fill="#2563eb"/>
+    <rect x="114" y="76" width="12" height="10" fill="#2563eb"/>
+    <!-- 门把手 -->
+    <circle cx="102" cy="105" r="1.5" fill="#ffffff"/>
+  </g>
+  
+  <!-- 计算器符号 -->
+  <g fill="#ffffff" font-family="Arial, sans-serif" font-size="20" font-weight="bold">
+    <text x="96" y="140" text-anchor="middle">¥</text>
+  </g>
+</svg>
