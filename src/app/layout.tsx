@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://mortgage-calculator.plantree.me'),
   title: "房贷计算器 - 精确计算您的房贷还款计划",
   description: "专业的房贷计算器，支持商业贷款、公积金贷款和组合贷款，提供等额本息和等额本金两种还款方式，包含详细的还款计划和可视化图表。",
   keywords: ["房贷计算器", "贷款计算", "等额本息", "等额本金", "商业贷款", "公积金贷款", "组合贷款", "还款计划"],
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
     siteName: "房贷计算器",
     images: [
       {
-        url: "/og-image.png",
+        url: "/opengraph-image",
         width: 1200,
         height: 630,
         alt: "房贷计算器 - 专业的房贷计算工具",
@@ -53,7 +54,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "房贷计算器 - 精确计算您的房贷还款计划",
     description: "专业的房贷计算器，支持多种贷款类型和还款方式，包含详细的还款计划和可视化图表。",
-    images: ["/og-image.png"],
+    images: ["/twitter-image"],
     creator: "@plantree_me",
     site: "@plantree_me"
   },
@@ -99,9 +100,6 @@ export default function RootLayout({
         <meta property="og:site_name" content="房贷计算器" />
         <meta property="og:locale" content="zh_CN" />
         <meta property="og:type" content="website" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="房贷计算器 - 专业的房贷计算工具" />
         
         {/* Twitter Card 额外标签 */}
         <meta name="twitter:domain" content="mortgage-calculator.plantree.me" />
