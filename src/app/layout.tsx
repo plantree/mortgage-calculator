@@ -25,12 +25,11 @@ export const metadata: Metadata = {
       { url: '/icon.svg', type: 'image/svg+xml' },
       { url: '/favicon-16x16.svg', sizes: '16x16', type: 'image/svg+xml' },
       { url: '/favicon-32x32.svg', sizes: '32x32', type: 'image/svg+xml' },
-      { url: '/favicon.ico', sizes: '32x32' }
     ],
     apple: [
       { url: '/apple-icon.svg', type: 'image/svg+xml' }
     ],
-    shortcut: '/favicon.ico'
+    shortcut: '/favicon-16x16.svg'
   },
   manifest: '/manifest.json',
   openGraph: {
@@ -42,11 +41,9 @@ export const metadata: Metadata = {
     siteName: "房贷计算器",
     images: [
       {
-        url: "/opengraph-image",
-        width: 1200,
-        height: 630,
+        url: "/icon-192.svg",
         alt: "房贷计算器 - 专业的房贷计算工具",
-        type: "image/png"
+        type: "image/svg+xml"
       }
     ]
   },
@@ -54,9 +51,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "房贷计算器 - 精确计算您的房贷还款计划",
     description: "专业的房贷计算器，支持多种贷款类型和还款方式，包含详细的还款计划和可视化图表。",
-    images: ["/twitter-image"],
-    creator: "@plantree_me",
-    site: "@plantree_me"
   },
   robots: {
     index: true,
@@ -100,7 +94,8 @@ export default function RootLayout({
         <meta property="og:site_name" content="房贷计算器" />
         <meta property="og:locale" content="zh_CN" />
         <meta property="og:type" content="website" />
-        
+        <meta property="og:image" content="https://mortgage-calculator.plantree.me/icon-192.svg" />
+
         {/* Twitter Card 额外标签 */}
         <meta name="twitter:domain" content="mortgage-calculator.plantree.me" />
         <meta name="twitter:url" content="https://mortgage-calculator.plantree.me" />
