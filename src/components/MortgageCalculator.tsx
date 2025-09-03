@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Calculator, TrendingUp, Home, PiggyBank, Combine } from 'lucide-react';
+import { Calculator, TrendingUp, Home, PiggyBank, Combine, Github } from 'lucide-react';
 import { 
   calculateMortgage, 
   calculateCombinedLoan, 
@@ -528,8 +528,21 @@ export function MortgageCalculator() {
       
       {/* Footer */}
       <footer className="mt-12 pt-8 border-t border-gray-200">
-        <div className="text-center text-sm text-muted-foreground">
-          Copyright © from 2025 <a href="https://plantree.me" className="hover:underline">Plantree</a>. All Rights Reserved.
+        <div className="text-center text-sm text-muted-foreground space-y-2">
+          <div className="flex items-center justify-center gap-4">
+            <a 
+              href="https://github.com/plantree/mortgage-calculator" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:underline hover:text-foreground transition-colors"
+            >
+              <Github className="h-4 w-4" />
+              GitHub
+            </a>
+          </div>
+          <div>
+            Copyright © from 2025 <a href="https://plantree.me" className="hover:underline">Plantree</a>. All Rights Reserved.
+          </div>
         </div>
       </footer>
     </div>
