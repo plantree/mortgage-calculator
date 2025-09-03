@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Analytics 测试</title>
+</head>
+<body>
+    <h1>Google Analytics 配置测试</h1>
+    <p>打开浏览器开发者工具的 Network 面板，刷新页面，查看是否有以下请求：</p>
+    <ul>
+        <li>gtag/js?id=G-VFEL12RNLK</li>
+        <li>collect 或 g/collect (GA4 数据收集)</li>
+    </ul>
+    
+    <h2>验证步骤：</h2>
+    <ol>
+        <li>打开 <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></li>
+        <li>按 F12 打开开发者工具</li>
+        <li>切换到 Network 面板</li>
+        <li>刷新页面</li>
+        <li>在 Network 面板中搜索 "gtag" 或 "analytics"</li>
+        <li>应该看到 Google Analytics 相关的网络请求</li>
+    </ol>
+
+    <h2>控制台验证：</h2>
+    <p>在控制台中输入以下命令验证 gtag 是否已加载：</p>
+    <code>typeof gtag !== 'undefined'</code>
+    <p>如果返回 true，说明 Google Analytics 已正确加载。</p>
+
+    <h2>实时报告验证：</h2>
+    <p>登录 <a href="https://analytics.google.com" target="_blank">Google Analytics</a>，查看实时报告中是否有访问数据。</p>
+</body>
+</html>

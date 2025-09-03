@@ -17,16 +17,25 @@ import {
   formatCurrency 
 } from '@/lib/mortgage-calculator';
 
+interface CombinedLoanInfo {
+  commercialAmount: number;
+  commercialRate: number;
+  cpfAmount: number;
+  cpfRate: number;
+}
+
 interface EarlyRepaymentCalculatorProps {
   originalLoan: LoanInput;
   originalResult: LoanResult;
+  combinedLoanInfo?: CombinedLoanInfo;
 }
 
-export function EarlyRepaymentCalculator({ originalLoan }: EarlyRepaymentCalculatorProps) {
+export function EarlyRepaymentCalculator({ originalLoan, combinedLoanInfo }: EarlyRepaymentCalculatorProps) {
   const [repaymentForm, setRepaymentForm] = useState({
     repaymentMonth: 12,
     repaymentAmount: 100000,
-    repaymentType: 'reduceTime' as 'reduceTime' | 'reduceAmount'
+    repaymentType: 'reduceTime' as 'reduceTime' | 'reduceAmount',
+    interestRateOption: 'weighted' as 'weighted' | 'commercial' | 'cpf'
   });
 
   const [showCalculation, setShowCalculation] = useState(false);
@@ -34,8 +43,33 @@ export function EarlyRepaymentCalculator({ originalLoan }: EarlyRepaymentCalcula
   const earlyRepaymentResult: EarlyRepaymentResult | null = useMemo(() => {
     try {
       if (repaymentForm.repaymentAmount > 0 && repaymentForm.repaymentMonth > 0) {
+        // 根据用户选择的利率选项确定使用的利率
+        let effectiveInterestRate = originalLoan.interestRate;
+        
+        if (combinedLoanInfo) {
+          switch (repaymentForm.interestRateOption) {
+            case 'commercial':
+              effectiveInterestRate = combinedLoanInfo.commercialRate;
+              break;
+            case 'cpf':
+              effectiveInterestRate = combinedLoanInfo.cpfRate;
+              break;
+            case 'weighted':
+            default:
+              // 加权平均利率（默认）
+              effectiveInterestRate = (
+                combinedLoanInfo.commercialRate * combinedLoanInfo.commercialAmount + 
+                combinedLoanInfo.cpfRate * combinedLoanInfo.cpfAmount
+              ) / (combinedLoanInfo.commercialAmount + combinedLoanInfo.cpfAmount);
+              break;
+          }
+        }
+
         const earlyRepaymentInput: EarlyRepaymentInput = {
-          originalLoan,
+          originalLoan: {
+            ...originalLoan,
+            interestRate: effectiveInterestRate
+          },
           ...repaymentForm
         };
         return calculateEarlyRepayment(earlyRepaymentInput);
@@ -45,7 +79,7 @@ export function EarlyRepaymentCalculator({ originalLoan }: EarlyRepaymentCalcula
       console.error('提前还贷计算错误:', error);
       return null;
     }
-  }, [originalLoan, repaymentForm]);
+  }, [originalLoan, repaymentForm, combinedLoanInfo]);
 
   const handleFormChange = (field: string, value: string | number) => {
     setRepaymentForm(prev => ({
@@ -68,7 +102,8 @@ export function EarlyRepaymentCalculator({ originalLoan }: EarlyRepaymentCalcula
     setRepaymentForm({
       repaymentMonth: 12,
       repaymentAmount: 100000,
-      repaymentType: 'reduceTime'
+      repaymentType: 'reduceTime',
+      interestRateOption: 'weighted'
     });
   };
 
@@ -89,60 +124,99 @@ export function EarlyRepaymentCalculator({ originalLoan }: EarlyRepaymentCalcula
       </CardHeader>
       <CardContent className="space-y-6">
         {/* 输入表单 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="repaymentMonth">还贷时间（第几个月）</Label>
-            <Select
-              value={repaymentForm.repaymentMonth.toString()}
-              onValueChange={(value) => handleFormChange('repaymentMonth', parseInt(value))}
-            >
-              <SelectTrigger>
-                <SelectValue>{repaymentForm.repaymentMonth}个月</SelectValue>
-              </SelectTrigger>
-              <SelectContent className="max-h-[200px] overflow-y-auto">
-                {monthOptions.map((month) => (
-                  <SelectItem key={month} value={month.toString()}>
-                    第{month}个月
+        <div className="space-y-4">
+          {/* 组合贷款利率选择 */}
+          {combinedLoanInfo && (
+            <div className="space-y-2">
+              <Label htmlFor="interestRateOption">计算利率选择</Label>
+              <Select
+                value={repaymentForm.interestRateOption}
+                onValueChange={(value) => handleFormChange('interestRateOption', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue>
+                    {repaymentForm.interestRateOption === 'weighted' && '加权平均利率'}
+                    {repaymentForm.interestRateOption === 'commercial' && `商贷利率 ${combinedLoanInfo.commercialRate}%`}
+                    {repaymentForm.interestRateOption === 'cpf' && `公积金利率 ${combinedLoanInfo.cpfRate}%`}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weighted">
+                    加权平均利率 ({((combinedLoanInfo.commercialRate * combinedLoanInfo.commercialAmount + 
+                    combinedLoanInfo.cpfRate * combinedLoanInfo.cpfAmount) / 
+                    (combinedLoanInfo.commercialAmount + combinedLoanInfo.cpfAmount)).toFixed(2)}%)
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+                  <SelectItem value="commercial">
+                    商贷利率 ({combinedLoanInfo.commercialRate}%)
+                  </SelectItem>
+                  <SelectItem value="cpf">
+                    公积金利率 ({combinedLoanInfo.cpfRate}%)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="text-xs text-muted-foreground">
+                <p>• 加权平均利率：按贷款金额比例计算的综合利率</p>
+                <p>• 商贷利率：按商业贷款利率计算（通常更高，节省更多利息）</p>
+                <p>• 公积金利率：按公积金贷款利率计算（利率较低）</p>
+              </div>
+            </div>
+          )}
           
-          <div className="space-y-2">
-            <Label htmlFor="repaymentAmount">提前还贷金额（元）</Label>
-            <Input
-              id="repaymentAmount"
-              type="number"
-              value={repaymentForm.repaymentAmount === 0 ? '' : repaymentForm.repaymentAmount}
-              onChange={(e) => {
-                const inputValue = e.target.value;
-                if (inputValue === '' || inputValue === '0') {
-                  handleFormChange('repaymentAmount', inputValue);
-                } else {
-                  const numValue = parseFloat(inputValue) || 0;
-                  handleFormChange('repaymentAmount', numValue);
-                }
-              }}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="repaymentType">还贷方式</Label>
-            <Select
-              value={repaymentForm.repaymentType}
-              onValueChange={(value) => handleFormChange('repaymentType', value)}
-            >
-              <SelectTrigger>
-                <SelectValue>
-                  {repaymentForm.repaymentType === 'reduceTime' ? '缩短年限' : '减少月供'}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="reduceTime">缩短年限</SelectItem>
-                <SelectItem value="reduceAmount">减少月供</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="repaymentMonth">还贷时间（第几个月）</Label>
+              <Select
+                value={repaymentForm.repaymentMonth.toString()}
+                onValueChange={(value) => handleFormChange('repaymentMonth', parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue>{repaymentForm.repaymentMonth}个月</SelectValue>
+                </SelectTrigger>
+                <SelectContent className="max-h-[200px] overflow-y-auto">
+                  {monthOptions.map((month) => (
+                    <SelectItem key={month} value={month.toString()}>
+                      第{month}个月
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="repaymentAmount">提前还贷金额（元）</Label>
+              <Input
+                id="repaymentAmount"
+                type="number"
+                value={repaymentForm.repaymentAmount === 0 ? '' : repaymentForm.repaymentAmount}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (inputValue === '' || inputValue === '0') {
+                    handleFormChange('repaymentAmount', inputValue);
+                  } else {
+                    const numValue = parseFloat(inputValue) || 0;
+                    handleFormChange('repaymentAmount', numValue);
+                  }
+                }}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="repaymentType">还贷方式</Label>
+              <Select
+                value={repaymentForm.repaymentType}
+                onValueChange={(value) => handleFormChange('repaymentType', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue>
+                    {repaymentForm.repaymentType === 'reduceTime' ? '缩短年限' : '减少月供'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="reduceTime">缩短年限</SelectItem>
+                  <SelectItem value="reduceAmount">减少月供</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 

@@ -515,7 +515,13 @@ export function MortgageCalculator() {
               loanTerm: combinedForm.loanTerm,
               paymentMethod: combinedForm.paymentMethod
             }} 
-            originalResult={combinedResult.combined} 
+            originalResult={combinedResult.combined}
+            combinedLoanInfo={{
+              commercialAmount: combinedForm.commercialAmount,
+              commercialRate: combinedForm.commercialRate,
+              cpfAmount: combinedForm.cpfAmount,
+              cpfRate: combinedForm.cpfRate
+            }}
           />
         </TabsContent>
       </Tabs>
