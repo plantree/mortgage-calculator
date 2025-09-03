@@ -132,7 +132,7 @@ export default function RootLayout({
       >
         {/* Google Analytics */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-VFEL12RNLK"
+          src="https://www.googletagmanager.com/gtag/js?id=G-GNXSQ3R5MC"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -140,7 +140,7 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-VFEL12RNLK', {
+            gtag('config', 'G-GNXSQ3R5MC', {
               page_title: document.title,
               page_location: window.location.href,
               send_page_view: true
